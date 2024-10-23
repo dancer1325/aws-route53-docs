@@ -1,25 +1,37 @@
 # What is Amazon Route 53?<a name="Welcome"></a>
 
-Amazon Route 53 is a highly available and scalable Domain Name System \(DNS\) web service\. You can use Route 53 to perform three main functions in any combination: domain registration, DNS routing, and health checking\. 
-
-If you choose to use Route 53 for all three functions, be sure to follow the order below:
-
-**1\. Register domain names**  
-Your website needs a name, such as example\.com\. Route 53 lets you register a name for your website or web application, known as a *domain name*\.  
-+ For an overview, see [How domain registration works](welcome-domain-registration.md)\.
-+ For a procedure, see [Registering a new domain](domain-register.md)\.
-+ For a tutorial that takes you through registering a domain and creating a simple website in an Amazon S3 bucket, see [Getting started with Amazon Route 53](getting-started.md)\.
-
-**2\. Route internet traffic to the resources for your domain**  
-When a user opens a web browser and enters your domain name \(example\.com\) or subdomain name \(acme\.example\.com\) in the address bar, Route 53 helps connect the browser with your website or web application\.  
-+ For an overview, see [How internet traffic is routed to your website or web application](welcome-dns-service.md)\.
-+ For procedures, see [Configuring Amazon Route 53 as your DNS service](dns-configuring.md)\.
-+ For a procedure on how to route email to Amazon WorkMail, see [Routing traffic to Amazon WorkMail](routing-to-workmail.md)\. 
-
-**3\. Check the health of your resources**  
-Route 53 sends automated requests over the internet to a resource, such as a web server, to verify that it's reachable, available, and functional\. You also can choose to receive notifications when a resource becomes unavailable and choose to route internet traffic away from unhealthy resources\.   
-+ For an overview, see [How Amazon Route 53 checks the health of your resources](welcome-health-checks.md)\.
-+ For procedures, see [Creating Amazon Route 53 health checks and configuring DNS failover](dns-failover.md)\. 
+* Amazon Route 53
+  * := Domain Name System \(DNS\) web service
+    * /
+      * highly available
+      * highly scalable
+    * allows
+      * ⭐️perform 3 main functions ⭐️
+        * domain registration
+          * _Example:_ for your website or web application
+        * DNS routing
+        * health checking 
+        * / 👀in ANY combination allowed 👀
+          * 👀if you use Route 53 for all 3 -> follow the next order 👀
+            * **Register domain names**
+              * [How domain registration works](welcome-domain-registration.md)
+              * [Registering a new domain](domain-register.md)
+              * [Getting started with Amazon Route 53](getting-started.md)
+            * **Route internet traffic -- to the -- resources for your domain**
+              * if you enter a domain name | web browser -> Route 53 helps connect the browser -- with -- the website or web application
+              * [How internet traffic is routed to your website or web application](welcome-dns-service.md)
+              * [Configuring Amazon Route 53 as your DNS service](dns-configuring.md)
+              * [Routing traffic email to Amazon WorkMail](routing-to-workmail.md)
+            * **Check the health of your resources**
+              * Route 53 -- sends automated requests over the internet to a -- resource / verify that it's
+                * reachable
+                * available
+                * functional
+              * if a resource becomes unavailable & you configure it -> you can
+                * receive notifications
+                * route internet traffic -- away from -- unhealthy resources
+              * [How Amazon Route 53 checks the health of your resources](welcome-health-checks.md)
+              * [Creating Amazon Route 53 health checks and configuring DNS failover](dns-failover.md) 
 
 **Topics**
 + [How domain registration works](welcome-domain-registration.md)
