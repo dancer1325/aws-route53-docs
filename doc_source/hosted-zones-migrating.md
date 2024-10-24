@@ -91,32 +91,32 @@
 
 ## Step 4: Edit the records that you want to migrate<a name="hosted-zones-migrating-edit-records"></a>
 
-* TODO:
-The format of the file that you created in the previous procedure is close to the format that is required by the AWS CLI `change-resource-record-sets` command that you use to create records in the new hosted zone\. However, the file requires some edits\. You must apply some of the changes to every record\. You can make these changes using the search and replace function in a good text editor\.
+* AWS CLI `change-resource-record-sets`
+  * == command / allows creating records | NEW hosted zone
+  * requirements
+    * specific format -> edit previous file 
+* changes / required | previous file
+  + delete the first 2 lines | top of the output
 
-Open a copy of the file that you created in [Step 3: Create a file that contains the records that you want to migrate](#hosted-zones-migrating-create-file), and make the following changes:
-+ Delete the first two lines at the top of the output:
-
-  ```
-  {
-      "ResourceRecordSets": [
-  ```
-+ Delete the lines related to the NS and SOA records\. The new hosted zone already has those records\.
-+ *Optional* – Add a `Comment` element\.
-+ Add a `Changes` element\.
-+ For each record, add an `Action` and a `ResourceRecordSet` element\.
-+ Add opening and closing braces \( `{ }` \) as required to make the JSON code valid\.
-**Note**  
-You can use a JSON validator to verify that you have all the braces and brackets in the correct places\. To find an online JSON validator, do an internet search on "`json validator`"\.
-+ If the hosted zone contains any aliases that refer to other records in the same hosted zone, make the following changes:
-  + Change the hosted zone ID to the ID of the new hosted zone\.
-**Important**  
-If the alias record is pointing to another resource, for example, a load balancer, update the hosted zone ID to the hosted zone id of the resource itself, not the hosted zone ID of the domain\. That hosted zone ID can be found from the AWS console where the resource was created\.
-  + Move the alias records to the bottom of the file\. Route 53 must create the record that an alias record refers to before it can create the alias record\.
-**Important**  
-If one or more alias records refer to other alias records, the records that are the alias target must appear in the file before the referencing alias records\. For example, if `alias.example.com` is the alias target for `alias.alias.example.com`, `alias.example.com` must appear first in the file\.
-  + Delete any alias records that route traffic to a traffic policy instance\. Make note of the records so you can recreate them later\.
-+ You can use this process to create records in a hosted zone that has a different name\. For every record in the output, change the domain name part of the `Name` element to the name of the new hosted zone\. For example, if you list records in the example\.com hosted zone and you want to create records in an example\.net hosted zone, change the example\.com part of every record name to example\.net:
+    ```
+    {
+        "ResourceRecordSets": [
+    ```
+  + Delete the lines / -- related to the -- NS and SOA records
+    + Reason: 🧠The NEW hosted zone ALREADT has those records 🧠
+  + add, optionally, a `Comment` element
+  + add a `Changes` element
+  + add an `Action` & a `ResourceRecordSet` element / EACH record
+  + add opening & closing braces \( `{ }` \) 
+    + Reason: 🧠 required -- to make the -- JSON code valid 🧠
+  + if the hosted zone contains ANY aliases record / -- refer to -- other records | SAME hosted zone -> change
+    + old hosted zone ID -- to the -- NEW hosted zone ID
+    + 👀if the alias record -- is pointing to -- ANOTHER resource (_Example:_ load balancer) -> hosted zone ID -- must be updated to the -- resource's hosted zone (NOT domain name's hosted zone) 👀
+    + alias records -- must be moved to the -- bottom of the file
+    + if >=1 alias records / -- refer to -- other alias records -> records / are the alias target -> MUST appear | file / -- before the -- referencing alias records
+      + _Example:_ if `alias.example.com` == alias target for `alias.alias.example.com` -> `alias.example.com` MUST appear | file, first
+    + Delete any alias records / -- route traffic to a -- traffic policy instance
++ TODO: You can use this process to create records in a hosted zone that has a different name\. For every record in the output, change the domain name part of the `Name` element to the name of the new hosted zone\. For example, if you list records in the example\.com hosted zone and you want to create records in an example\.net hosted zone, change the example\.com part of every record name to example\.net:
 
   From:
   + `"Name": "example.com."`
