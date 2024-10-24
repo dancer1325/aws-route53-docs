@@ -11,8 +11,11 @@
 + [Viewing traffic policy versions and the associated policy records](#traffic-policies-viewing)
 + [Deleting traffic policy versions and traffic policies](#traffic-policies-deleting)
 
+ * NO charge / # of traffic policies created
+
 ## Creating a traffic policy<a name="traffic-policies-creating"></a>
 
+* TODO:
 To create a traffic policy, perform the following procedure\.<a name="traffic-policies-creating-procedure"></a>
 
 **To create a traffic policy**
