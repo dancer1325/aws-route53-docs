@@ -1,6 +1,8 @@
 # NS and SOA records that Amazon Route 53 creates for a public hosted zone<a name="SOA-NSrecords"></a>
 
-For each public hosted zone that you create, Amazon Route 53 automatically creates a name server \(NS\) record and a start of authority \(SOA\) record\. You rarely need to change these records\. 
+* Amazon Route 53 automatically creates / EACH public hosted zone
+  * name server \(NS\) record
+  * start of authority \(SOA\) record 
 
 **Topics**
 + [The name server \(NS\) record](#NSrecords)
@@ -8,65 +10,80 @@ For each public hosted zone that you create, Amazon Route 53 automatically crea
 
 ## The name server \(NS\) record<a name="NSrecords"></a>
 
-Amazon Route 53 automatically creates a name server \(NS\) record that has the same name as your hosted zone\. It lists the four name servers that are the authoritative name servers for your hosted zone\. Except in rare circumstances, we recommend that you don't add, change, or delete name servers in this record\.
-
-The following examples show the format for the names of Route 53 name servers \(these are examples only; don't use them when you're updating your registrar's name server records\):
-+ *ns\-2048\.awsdns\-64\.com*
-+ *ns\-2049\.awsdns\-65\.net*
-+ *ns\-2050\.awsdns\-66\.org*
-+ *ns\-2051\.awsdns\-67\.co\.uk*
-
-To get the list of name servers for your hosted zone:
-
-1. Sign in to the AWS Management Console and open the Route 53 console at [https://console\.aws\.amazon\.com/route53/](https://console.aws.amazon.com/route53/)\.
-
-1. In the navigation pane, click **Hosted zones**\.
-
-1. On the **Hosted zones** page, choose the radio button \(not the name\) for the hosted zone, then choose **View details**\.
-
-1. On the details page for the hosted zone, choose **Hosted zone details**\.
-
-1. Make note of the four servers listed for **Name servers**\.
-
-For information about migrating DNS service from another DNS service provider to Route 53, see [Making Amazon Route 53 the DNS service for an existing domainMaking Route 53 the DNS service for an existing domain](MigratingDNS.md)\.
+* 's name == hosted zone name
+  * _Example of the format name:_
+    * *ns\-2048\.awsdns\-64\.com*
+    * *ns\-2049\.awsdns\-65\.net*
+    * *ns\-2050\.awsdns\-66\.org*
+    * *ns\-2051\.awsdns\-67\.co\.uk*
+* lists the 4 name servers / 👀are the authoritative name servers | your hosted zone 👀
+  * NOT recommended | this record, to
+    * add NS
+    * change NS
+    * delete NS
+  * way to get
+    1. Sign in to the AWS Management Console & open the [Route 53 console](https://console.aws.amazon.com/route53/)
+    1. click **Hosted zones** | navigation panel
+    1. choose one **Hosted zones** & view details
 
 ## The start of authority \(SOA\) record<a name="SOArecords"></a>
 
-The start of authority \(SOA\) record identifies the base DNS information about the domain, for example:
+* -- identifies the -- 👀base DNS information about the domain 👀
+  * _Example:_
 
-```
-1. ns-2048.awsdns-64.net. hostmaster.example.com. 1 7200 900 1209600 86400
-```
+    ```
+    1. ns-2048.awsdns-64.net. hostmaster.example.com. 1 7200 900 1209600 86400
+    ```
+  * Route 53 name server / created the SOA record
+    * _Example:_ `ns-2048.awsdns-64.net`
+  + email address of the administrator / `@` symbol -- is replaced by a -- period
+    + _Example:_ `hostmaster.example.com`
+    + `amazon.com` default email address / NOT monitored
+  + serial number / if you update a record | hosted zone -> you can optionally (NOT done automatically by Route 53) increment
+    + uses
+      + by DNS services / support secondary DNS
+    + _Example:_ value is `1`
+  + refresh time | seconds / secondary DNS servers wait / before querying the primary DNS server's SOA record -- to check for -- changes
+    + _Example:_ value is `7200`
+  + retry interval | seconds / secondary server waits / before retrying a failed zone transfer
+    + recommendations
+      + retry time < refresh time
+    + _Example:_ value is `900` \( == 15 minutes\) 
+  + time | seconds / secondary server will keep trying to complete a zone transfer
+    + if this time elapses / before a successful zone transfer -> secondary server -- will stop -- answering queries
+      + Reason: 🧠 considers its data is too old / be reliable 🧠
+    + _Example:_ value is `1209600` \(== 2 weeks\)
+  + minimum time to live \(TTL\)
+    + := length of time / recursive resolvers -- should cache the -- 👀 following responses from Route 53: 👀
+      + **NXDOMAIN**
+        + := responses from Route 53 / 
+          + NO record of ANY type / name == specified -- via the -- DNS query (_Example:_ example\.com)
+          + NO records / are children of the name == specified -- via the -- DNS query (_Example:_ zenith\.example\.com)
+      + **NODATA**
+        + := responses from Route 53 /
+          + \>=1  record / 
+            + name == specified -- via the -- DNS query
+            + BUT type != specified -- via the -- DNS query \(_Example:_ A\)
+    + if DNS resolver caches an NXDOMAIN OR NODATA response == *negative caching*
+      + 👀duration of negative caching < the following values👀 
+        + value—the minimum TTL | SOA record 
+          + _Example:_ `86400` \(== 1 day\)
+        + value of the TTL / SOA record
+          + default value is 900 seconds
+          + [How to change it](resource-record-sets-editing.md)
+      + -> you're charged the rate / standard queries
+        + [Amazon Route 53 Pricing](http://aws.amazon.com/route53/pricing/)
+      + ways to NOT get negative caching?
+        + change the
+          + TTL / SOA record
+          + minimum TTL | SOA record
+          + both
+        + 👀possible consequences of increasing these TTLs 👀
+          + reduces the # of queries / -- are forwarded to -- Route 53 -> reduces the Route 53 charge / DNS queries 
+            + Reason: 🧠DNS resolvers | internet / cache the non\-existence of records | longer periods 🧠
+          + if you erroneously delete a valid record & later recreate it -> DNS resolvers -- will cache the -- negative response | longer period -> lengthens the amount of time / your customers or users can NOT reach the corresponding resource (_Example:_ web server for acme\.example\.com) 
 
-A SOA record includes the following elements:
-+ The Route 53 name server that created the SOA record, for example, `ns-2048.awsdns-64.net`\.
-+ The email address of the administrator\. The `@` symbol is replaced by a period, for example, `hostmaster.example.com`\. The default value is an amazon\.com email address that is not monitored\.
-+ A serial number that you can optionally increment whenever you update a record in the hosted zone\. Route 53 doesn't increment the number automatically\. \(The serial number is used by DNS services that support secondary DNS\.\) In the example, this value is `1`\.
-+ A refresh time in seconds that secondary DNS servers wait before querying the primary DNS server's SOA record to check for changes\. In the example, this value is `7200`\.
-+ The retry interval in seconds that a secondary server waits before retrying a failed zone transfer\. Normally, the retry time is less than the refresh time\. In the example, this value is `900` \(15 minutes\)\. 
-+ The time in seconds that a secondary server will keep trying to complete a zone transfer\. If this time elapses before a successful zone transfer, the secondary server will stop answering queries because it considers its data too old to be reliable\. In the example, this value is `1209600` \(two weeks\)\.
-+ The minimum time to live \(TTL\)\. This value helps define the length of time that recursive resolvers should cache the following responses from Route 53:  
-**NXDOMAIN**  
-There is no record of any type with the name that is specified in the DNS query, such as example\.com\. There also are no records that are children of the name that is specified in the DNS query, such as zenith\.example\.com\.  
-**NODATA**  
-There is at least one record with the name that is specified in the DNS query, but none of those records have the type \(such as A\) that is specified in the DNS query\.
-
-  When a DNS resolver caches an NXDOMAIN or NODATA response, this is referred to as *negative caching*\. 
-
-  The duration of negative caching is the lesser of the following values:
-  + This value—the minimum TTL in the SOA record\. In the example, the value is `86400` \(one day\)\.
-  + The value of the TTL for the SOA record\. The default value is 900 seconds\. For information about changing this value, see [Editing records](resource-record-sets-editing.md)\.
-
-  When Route 53 responds to DNS queries with an NXDOMAIN or NODATA response \(a negative response\), you're charged the rate for standard queries\. \(See "Queries" in [Amazon Route 53 Pricing](http://aws.amazon.com/route53/pricing/)\. If you're concerned about the cost of negative responses, one option is to change the TTL for the SOA record, the minimum TTL in the SOA record \(this value\), or both\. Note that increasing these TTLs, which apply to negative responses for the entire hosted zone, can have both positive and negative effects:
-  + DNS resolvers on the internet cache the non\-existence of records for longer periods, which reduces the number of queries that are forwarded to Route 53\. This reduces the Route 53 charge for DNS queries\.
-  + However, if you ever erroneously delete a valid record and later recreate it, DNS resolvers will cache the negative response \(this record doesn't exist\) for a longer period\. This lengthens the amount of time that your customers or users can't reach the corresponding resource, such as a web server for acme\.example\.com\. <a name="get-soa-records-in-route-53-procedure"></a>
-
-**To find your SOA records in Route 53**
-
-1. Sign in to the AWS Management Console and open the Route 53 console at [https://console\.aws\.amazon\.com/route53/](https://console.aws.amazon.com/route53/)\.
-
-1. In the navigation pane, choose **Hosted zones**\.
-
-1. Select the linked name of the domain for which you want to view records\.
-
-1. On the **Records** section you can see all the records listed and you can also filter records to find your SOA value\.
+* way to get
+  1. Sign in to the AWS Management Console & open the [Route 53 console](https://console.aws.amazon.com/route53/)
+  1. click **Hosted zones** | navigation panel
+  1. Select the linked name of the domain & check | **Records** section
